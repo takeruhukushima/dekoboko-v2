@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 開発手順
 
-## Getting Started
+## githubのブランチ運用ルール
+\url{https://qiita.com/c6tower/items/fe2aa4ecb78bef69928f}を参考にする。
+<!-- テーブル -->
+| ブランチ名 | 用途 | 派生元 | マージ先 |
+|:---|:---|:---|:---|
+| main | ユーザーが見れるブランチ| なし | develop |
+| develop | 開発者が使うブランチ | main | feature/*, hotfix/* |
+| feature/* | 機能追加 | develop | develop/main |
+| hotfix/* | 緊急修正 | main | develop/main |
 
-First, run the development server:
+このブランチ運用ルールに従って開発を行う。
 
+``` bash 
+git checkout -b feature/{branch_name} 
+```
+のようにしてブランチを作成して開発を行う。
+
+### コミットメッセージルール
+
+開発のコミットは機能の節目ごとにまめに行ってください。
+Issueを作成している機能の追加の場合は、Issue番号をコミットメッセージに含めるようにしてください。
+
+``` bash
+git commit -m "Issue #1: ログイン機能の実装"
+```
+またはVSCode/Cursor のGUIからコミットメッセージを入力してください。
+
+### プルリクエストのルール
+
+プルリクエストを作成する際は、以下のルールに従ってください。
+
+- プルリクエストのタイトルは、Issue番号と機能の内容を簡潔に記述する
+- プルリクエストの本文には、機能の詳細や変更点を記述する
+- 開発者はほかの人にレビューを依頼する
+
+レビューを行う際は、以下を確認してください。
+
+- コードは適切に動くか？
+- コードの内容は適切か？後で技術的負債が発生しないか？
+
+レビューが終了したら、プルリクエストをマージしてください。
+
+
+
+## 開発手順
+1. リポジトリをクローンする
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/takeruhukushima/dekoboko.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. ブランチを作成する
+```bash
+git checkout -b feature/{branch_name}
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. 開発を行う
+4. プルリクエストを作成する
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
