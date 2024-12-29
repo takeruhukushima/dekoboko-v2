@@ -33,7 +33,7 @@ const dummyPosts: Post[] = [
   {
     id: '1',
     type: 'dekoboko',
-    content: 'Reactでウェブアプリを作成しました！',
+    content: 'Reactでウェブアプリを作成しました！20241229テストで編集してます。',
     likes: 5,
     interests: 3,
     author: {
