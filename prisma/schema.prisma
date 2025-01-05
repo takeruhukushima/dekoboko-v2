@@ -10,11 +10,19 @@ datasource db {
 }
 
 model AuthSession {
-  key     String @id
-  session String
+  key       String @id
+  session   String
 }
 
 model AuthState {
-  key   String @id
-  state String
+  key       String @id
+  state     String
+}
+
+model Post {
+  rkey      String @id
+  text      String
+  createdAt DateTime
+  postedBy  String
+  record    String
 }

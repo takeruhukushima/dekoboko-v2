@@ -1,8 +1,8 @@
 # 開発手順
 
-## githubのブランチ運用ルール
+## github のブランチ運用ルール
 
-\url{https://qiita.com/c6tower/items/fe2aa4ecb78bef69928f}を参考にする。
+[記事](https://qiita.com/c6tower/items/fe2aa4ecb78bef69928f)を参考にする。
 
 <!-- テーブル -->
 
@@ -10,13 +10,11 @@
 | :--------- | :----------------------- | :------ | :------------------ |
 | main       | ユーザーが見れるブランチ | なし    | develop             |
 | develop    | 開発者が使うブランチ     | main    | feature/_, hotfix/_ |
-| feature/*  | 機能追加                 | develop | develop/main        |
-| hotfix/*   | 緊急修正                 | main    | develop/main        |
+| feature/\* | 機能追加                 | develop | develop/main        |
+| hotfix/\*  | 緊急修正                 | main    | develop/main        |
 
 このブランチ運用ルールに従って開発を行う。
 
-```bash
-git checkout -b feature/{branch_name}
 ```
 
 のようにしてブランチを作成して開発を行う。
@@ -24,7 +22,7 @@ git checkout -b feature/{branch_name}
 ### コミットメッセージルール
 
 開発のコミットは機能の節目ごとにまめに行ってください。
-Issueを作成している機能の追加の場合は、Issue番号をコミットメッセージに含めるようにしてください。
+Issue を作成している機能の追加の場合は、Issue 番号をコミットメッセージに含めるようにしてください。
 
 ```bash
 git commit -m "Issue #1: ログイン機能の実装"
@@ -36,7 +34,7 @@ git commit -m "Issue #1: ログイン機能の実装"
 
 プルリクエストを作成する際は、以下のルールに従ってください。
 
-- プルリクエストのタイトルは、Issue番号と機能の内容を簡潔に記述する
+- プルリクエストのタイトルは、Issue 番号と機能の内容を簡潔に記述する
 - プルリクエストの本文には、機能の詳細や変更点を記述する
 - 開発者はほかの人にレビューを依頼する
 
@@ -49,17 +47,36 @@ git commit -m "Issue #1: ログイン機能の実装"
 
 ## 開発手順
 
-1. リポジトリをクローンする
+### 1. リポジトリをクローンする
 
 ```bash
 git clone https://github.com/takeruhukushima/dekoboko.git
 ```
 
-2. ブランチを作成する
+### 2. ブランチを作成する
 
 ```bash
 git checkout -b feature/{branch_name}
 ```
 
-3. 開発を行う
-4. プルリクエストを作成する
+### 3. 開発を行う
+
+必要な環境変数を設定
+
+```
+DB_NAME=
+DB_USER=
+DB_PASS=
+
+DATABASE_URL=postgresql://${DB_USER}:${DB_PASS}@db:5432/postgres?schema=public
+COOKIE_SECRET=
+```
+
+Docker コンテナを起動
+
+```bash
+npm install
+docker-compose up
+```
+
+### 4. プルリクエストを作成する
