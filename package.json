@@ -11,11 +11,14 @@
   "dependencies": {
     "@atproto/api": "^0.13.23",
     "@atproto/jwk-jose": "^0.1.2",
+    "@atproto/lex-cli": "^0.5.4",
     "@atproto/oauth-client-node": "^0.2.5",
     "@prisma/client": "^6.1.0",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-tabs": "^1.1.1",
+    "@skyware/jetstream": "^0.2.1",
+    "@types/ws": "^8.5.13",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^11.11.17",
@@ -26,7 +29,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwind-merge": "^2.6.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/node": "^20.17.10",
