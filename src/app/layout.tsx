@@ -27,21 +27,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="jp">
+    <html lang="ja">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* 全体をProtectedRouteで保護 */}
-        
-          
-          {/* メインコンテンツ */}
-          <main className="container mx-auto py-8">{children}</main>
+        {/* メインコンテンツ */}
+        <main className="container mx-auto py-8">{children}</main>
 
-          {/* フッター */}
-          <footer className="bg-gray-800 text-white text-center p-4">
-            <p>© 2025 Dekoboko App. All Rights Reserved.</p>
-          </footer>
-        
+        {/* フッター */}
+        <footer className="bg-gray-800 text-white text-center p-4">
+          <p>© 2025 Dekoboko App. All Rights Reserved.</p>
+        </footer>
+
       </body>
     </html>
   );
