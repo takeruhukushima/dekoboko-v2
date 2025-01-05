@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import Link from "next/link";
 import "./globals.css";
-import ProtectedRoute from "@/app/components/ui/ProtectedRoute";
 
 // フォントの設定
 const geistSans = localFont({
@@ -34,7 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {/* 全体をProtectedRouteで保護 */}
-        <ProtectedRoute>
+        
           {/* ヘッダー */}
           <header className="bg-blue-600 text-white p-4">
             <div className="container mx-auto flex justify-between items-center">
@@ -68,7 +67,7 @@ export default function RootLayout({
           <footer className="bg-gray-800 text-white text-center p-4">
             <p>© 2025 Dekoboko App. All Rights Reserved.</p>
           </footer>
-        </ProtectedRoute>
+        
       </body>
     </html>
   );
