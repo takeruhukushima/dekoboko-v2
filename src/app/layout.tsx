@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import Link from "next/link";
 import "./globals.css";
 import ProtectedRoute from "@/app/components/ui/ProtectedRoute";
 
@@ -41,19 +42,19 @@ export default function RootLayout({
               <nav>
                 <ul className="flex space-x-4">
                   <li>
-                    <a href="/" className="hover:underline">
+                    <Link href="/" className="hover:underline">
                       Home
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a href="/profile" className="hover:underline">
+                    <Link href="/profile" className="hover:underline">
                       Profile
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a href="/about" className="hover:underline">
+                    <Link href="/about" className="hover:underline">
                       About
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </nav>

@@ -22,12 +22,12 @@ export default function AuthForm({ mode }: AuthFormProps) {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md bg-white p-6 rounded-lg shadow-md"
+        className="w-full max-w-md bg-white p-8 rounded-lg shadow-xl space-y-6"
       >
-        <h1 className="text-xl font-bold mb-4 text-center">
+        <h1 className="text-2xl font-bold text-center">
           {mode === "signup" ? "Sign Up" : "Sign In"}
         </h1>
-        <div className="mb-4">
+        <div>
           <label htmlFor="email" className="block text-sm font-medium mb-1">
             Email
           </label>
@@ -36,11 +36,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-lg"
+            className="w-full p-3 border border-gray-300 rounded-lg"
             required
           />
         </div>
-        <div className="mb-4">
+        <div>
           <label htmlFor="password" className="block text-sm font-medium mb-1">
             Password
           </label>
@@ -49,13 +49,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-lg"
+            className="w-full p-3 border border-gray-300 rounded-lg"
             required
           />
         </div>
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
+          className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-3 rounded-lg hover:from-blue-600 hover:to-purple-600"
         >
           {mode === "signup" ? "Sign Up" : "Sign In"}
         </button>
@@ -71,7 +71,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
           </>
         ) : (
           <>
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/auth/signup" className="text-blue-500 hover:underline">
               Sign Up
             </Link>
