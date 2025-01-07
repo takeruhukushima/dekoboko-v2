@@ -18,12 +18,13 @@ git checkout -b feature/{branch_name}
 
 ### 3. 開発を行う
 
-必要な環境変数を設定
+必要な環境変数を設定\
+COOKIE_SECRETには`$ openssl rand -hex 32`を実行し出力された内容を入力
 
 ```
-DB_NAME=
-DB_USER=
-DB_PASS=
+DB_NAME=postgres
+DB_USER=postgres
+DB_PASS=example_password
 
 DATABASE_URL=postgresql://${DB_USER}:${DB_PASS}@db:5432/postgres?schema=public
 COOKIE_SECRET=
@@ -36,12 +37,12 @@ npm install
 docker-compose up
 ```
 
-
 ## ライセンス
 
-`dekoboko`は [Apache License 2.0](LICENSE)
-のもとで提供されています。
+`dekoboko`は [Apache License 2.0](LICENSE) のもとで提供されています。
+
 ## お問い合わせ
+
 ご質問やフィードバックは以下で受け付けています：
 
 - GitHub Issues: https://github.com/takeruhukushima/dekoboko/issues
