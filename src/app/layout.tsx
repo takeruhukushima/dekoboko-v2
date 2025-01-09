@@ -4,12 +4,12 @@ import "./globals.css";
 
 // フォントの設定
 const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
+  src: "../fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
 });
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
+  src: "../fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
 });
@@ -27,21 +27,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ja">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* 全体をProtectedRouteで保護 */}
-        
-          
-          {/* メインコンテンツ */}
-          <main className="container mx-auto py-8">{children}</main>
+        {/* メインコンテンツ */}
+        <main className="container mx-auto py-8">{children}</main>
 
-          {/* フッター */}
-          <footer className="bg-gray-800 text-white text-center p-4">
-            <p>© 2025 Dekoboko App. All Rights Reserved.</p>
-          </footer>
-        
+        {/* フッター */}
+        <footer className="bg-gray-800 text-white text-center p-4">
+          <p>© 2025 Dekoboko App. All Rights Reserved.</p>
+        </footer>
+
       </body>
     </html>
   );
