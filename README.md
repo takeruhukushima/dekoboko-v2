@@ -40,7 +40,6 @@ docker-compose up
 ## ライセンス
 
 `dekoboko`は [Apache License 2.0](LICENSE) のもとで提供されています。
-
 ## お問い合わせ
 
 ご質問やフィードバックは以下で受け付けています：
