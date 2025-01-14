@@ -3,10 +3,9 @@ import { getSessionAgent } from "@/lib/auth/session";
 import { Agent } from "@atproto/api";
 import Image from "next/image";
 
-export default async function Home() {
+export default async function Profile() {
   const agent: Agent | null = await getSessionAgent();
 
-  //認証チェック
   if (agent) {
     const profile = await agent.getProfile({ actor: agent.assertDid });
 
@@ -36,6 +35,4 @@ export default async function Home() {
       </div>
     );
   }
-
-  return <p className="text-center">認証してください</p>;
 }

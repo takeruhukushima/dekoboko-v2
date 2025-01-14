@@ -1,0 +1,40 @@
+{
+  "lexicon": 1,
+  "id": "app.vercel.dekoboko.event",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": [
+          "title",
+          "description",
+          "achievement",
+          "createdAt",
+          "authorDid"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of the event"
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the event"
+          },
+          "achievement": {
+            "type": "string",
+            "description": "Achievements for participating in events"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Client-declared timestamp when this event was originally created."
+          },
+          "authorDid": { "type": "string", "format": "at-identifier" }
+        }
+      }
+    }
+  }
+}

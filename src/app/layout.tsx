@@ -31,14 +31,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* メインコンテンツ */}
         <main className="container mx-auto py-8">{children}</main>
 
-        {/* フッター */}
         <footer className="bg-gray-800 text-white text-center p-4">
           <p>© 2025 Dekoboko App. All Rights Reserved.</p>
         </footer>
-
       </body>
     </html>
   );

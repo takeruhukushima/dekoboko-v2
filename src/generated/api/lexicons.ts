@@ -4,17 +4,61 @@
 import { LexiconDoc, Lexicons } from '@atproto/lexicon'
 
 export const schemaDict = {
-  AppVercelDecobokoPost: {
+  AppVercelDekobokoEvent: {
     lexicon: 1,
-    id: 'app.vercel.decoboko.post',
+    id: 'app.vercel.dekoboko.event',
     defs: {
       main: {
         type: 'record',
-        description: 'Record containing a decoboko post.',
         key: 'tid',
         record: {
           type: 'object',
-          required: ['text', 'createdAt'],
+          required: [
+            'title',
+            'description',
+            'achievement',
+            'createdAt',
+            'authorDid',
+          ],
+          properties: {
+            title: {
+              type: 'string',
+              description: 'The title of the event',
+            },
+            description: {
+              type: 'string',
+              description: 'The description of the event',
+            },
+            achievement: {
+              type: 'string',
+              description: 'Achievements for participating in events',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'datetime',
+              description:
+                'Client-declared timestamp when this event was originally created.',
+            },
+            authorDid: {
+              type: 'string',
+              format: 'at-identifier',
+            },
+          },
+        },
+      },
+    },
+  },
+  AppVercelDekobokoPost: {
+    lexicon: 1,
+    id: 'app.vercel.dekoboko.post',
+    defs: {
+      main: {
+        type: 'record',
+        description: 'Record containing a dekoboko post.',
+        key: 'tid',
+        record: {
+          type: 'object',
+          required: ['text', 'createdAt', 'authorDid'],
           properties: {
             text: {
               type: 'string',
@@ -28,6 +72,10 @@ export const schemaDict = {
               description:
                 'Client-declared timestamp when this post was originally created.',
             },
+            authorDid: {
+              type: 'string',
+              format: 'at-identifier',
+            },
           },
         },
       },
@@ -37,4 +85,7 @@ export const schemaDict = {
 
 export const schemas = Object.values(schemaDict)
 export const lexicons: Lexicons = new Lexicons(schemas)
-export const ids = { AppVercelDecobokoPost: 'app.vercel.decoboko.post' }
+export const ids = {
+  AppVercelDekobokoEvent: 'app.vercel.dekoboko.event',
+  AppVercelDekobokoPost: 'app.vercel.dekoboko.post',
+}

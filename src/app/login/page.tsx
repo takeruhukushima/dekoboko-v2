@@ -26,7 +26,7 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>decobokoにログイン</CardTitle>
+          <CardTitle>dekobokoにログイン</CardTitle>
           <CardDescription>
             ハンドルを入力してログインしてください
           </CardDescription>

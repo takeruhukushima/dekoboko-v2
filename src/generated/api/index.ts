@@ -4,9 +4,11 @@
 import { XrpcClient, FetchHandler, FetchHandlerOptions } from '@atproto/xrpc'
 import { schemas } from './lexicons'
 import { CID } from 'multiformats/cid'
-import * as AppVercelDecobokoPost from './types/app/vercel/decoboko/post'
+import * as AppVercelDekobokoEvent from './types/app/vercel/dekoboko/event'
+import * as AppVercelDekobokoPost from './types/app/vercel/dekoboko/post'
 
-export * as AppVercelDecobokoPost from './types/app/vercel/decoboko/post'
+export * as AppVercelDekobokoEvent from './types/app/vercel/dekoboko/event'
+export * as AppVercelDekobokoPost from './types/app/vercel/dekoboko/post'
 
 export class AtpBaseClient extends XrpcClient {
   app: AppNS
@@ -34,21 +36,88 @@ export class AppNS {
 
 export class AppVercelNS {
   _client: XrpcClient
-  decoboko: AppVercelDecobokoNS
+  dekoboko: AppVercelDekobokoNS
 
   constructor(client: XrpcClient) {
     this._client = client
-    this.decoboko = new AppVercelDecobokoNS(client)
+    this.dekoboko = new AppVercelDekobokoNS(client)
   }
 }
 
-export class AppVercelDecobokoNS {
+export class AppVercelDekobokoNS {
   _client: XrpcClient
+  event: EventRecord
   post: PostRecord
 
   constructor(client: XrpcClient) {
     this._client = client
+    this.event = new EventRecord(client)
     this.post = new PostRecord(client)
+  }
+}
+
+export class EventRecord {
+  _client: XrpcClient
+
+  constructor(client: XrpcClient) {
+    this._client = client
+  }
+
+  async list(
+    params: Omit<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
+  ): Promise<{
+    cursor?: string
+    records: { uri: string; value: AppVercelDekobokoEvent.Record }[]
+  }> {
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'app.vercel.dekoboko.event',
+      ...params,
+    })
+    return res.data
+  }
+
+  async get(
+    params: Omit<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
+  ): Promise<{
+    uri: string
+    cid: string
+    value: AppVercelDekobokoEvent.Record
+  }> {
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'app.vercel.dekoboko.event',
+      ...params,
+    })
+    return res.data
+  }
+
+  async create(
+    params: Omit<
+      ComAtprotoRepoCreateRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: AppVercelDekobokoEvent.Record,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    record.$type = 'app.vercel.dekoboko.event'
+    const res = await this._client.call(
+      'com.atproto.repo.createRecord',
+      undefined,
+      { collection: 'app.vercel.dekoboko.event', ...params, record },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async delete(
+    params: Omit<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
+  ): Promise<void> {
+    await this._client.call(
+      'com.atproto.repo.deleteRecord',
+      undefined,
+      { collection: 'app.vercel.dekoboko.event', ...params },
+      { headers },
+    )
   }
 }
 
@@ -63,10 +132,10 @@ export class PostRecord {
     params: Omit<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
   ): Promise<{
     cursor?: string
-    records: { uri: string; value: AppVercelDecobokoPost.Record }[]
+    records: { uri: string; value: AppVercelDekobokoPost.Record }[]
   }> {
     const res = await this._client.call('com.atproto.repo.listRecords', {
-      collection: 'app.vercel.decoboko.post',
+      collection: 'app.vercel.dekoboko.post',
       ...params,
     })
     return res.data
@@ -77,10 +146,10 @@ export class PostRecord {
   ): Promise<{
     uri: string
     cid: string
-    value: AppVercelDecobokoPost.Record
+    value: AppVercelDekobokoPost.Record
   }> {
     const res = await this._client.call('com.atproto.repo.getRecord', {
-      collection: 'app.vercel.decoboko.post',
+      collection: 'app.vercel.dekoboko.post',
       ...params,
     })
     return res.data
@@ -91,14 +160,14 @@ export class PostRecord {
       ComAtprotoRepoCreateRecord.InputSchema,
       'collection' | 'record'
     >,
-    record: AppVercelDecobokoPost.Record,
+    record: AppVercelDekobokoPost.Record,
     headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    record.$type = 'app.vercel.decoboko.post'
+    record.$type = 'app.vercel.dekoboko.post'
     const res = await this._client.call(
       'com.atproto.repo.createRecord',
       undefined,
-      { collection: 'app.vercel.decoboko.post', ...params, record },
+      { collection: 'app.vercel.dekoboko.post', ...params, record },
       { encoding: 'application/json', headers },
     )
     return res.data
@@ -111,7 +180,7 @@ export class PostRecord {
     await this._client.call(
       'com.atproto.repo.deleteRecord',
       undefined,
-      { collection: 'app.vercel.decoboko.post', ...params },
+      { collection: 'app.vercel.dekoboko.post', ...params },
       { headers },
     )
   }

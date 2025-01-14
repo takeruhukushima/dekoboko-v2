@@ -7,10 +7,15 @@ import { lexicons } from '../../../../lexicons'
 import { CID } from 'multiformats/cid'
 
 export interface Record {
-  /** The primary post content. */
-  text: string
-  /** Client-declared timestamp when this post was originally created. */
+  /** The title of the event */
+  title: string
+  /** The description of the event */
+  description: string
+  /** Achievements for participating in events */
+  achievement: string
+  /** Client-declared timestamp when this event was originally created. */
   createdAt: string
+  authorDid: string
   [k: string]: unknown
 }
 
@@ -18,11 +23,11 @@ export function isRecord(v: unknown): v is Record {
   return (
     isObj(v) &&
     hasProp(v, '$type') &&
-    (v.$type === 'app.vercel.decoboko.post#main' ||
-      v.$type === 'app.vercel.decoboko.post')
+    (v.$type === 'app.vercel.dekoboko.event#main' ||
+      v.$type === 'app.vercel.dekoboko.event')
   )
 }
 
 export function validateRecord(v: unknown): ValidationResult {
-  return lexicons.validate('app.vercel.decoboko.post#main', v)
+  return lexicons.validate('app.vercel.dekoboko.event#main', v)
 }
