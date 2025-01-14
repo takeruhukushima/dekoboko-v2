@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 
 const publicRoutes = [
   "/login",
+  "/xrpc",
   "/api/auth",
   "/api/oauth/callback",
   "/_next",
