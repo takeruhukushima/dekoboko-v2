@@ -7,13 +7,7 @@
       "key": "tid",
       "record": {
         "type": "object",
-        "required": [
-          "title",
-          "description",
-          "achievement",
-          "createdAt",
-          "authorDid"
-        ],
+        "required": ["title", "description", "achievement", "createdAt"],
         "properties": {
           "title": {
             "type": "string",
@@ -31,8 +25,7 @@
             "type": "string",
             "format": "datetime",
             "description": "Client-declared timestamp when this event was originally created."
-          },
-          "authorDid": { "type": "string", "format": "at-identifier" }
+          }
         }
       }
     }

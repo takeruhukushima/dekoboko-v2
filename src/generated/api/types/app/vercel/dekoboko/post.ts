@@ -11,7 +11,6 @@ export interface Record {
   text: string
   /** Client-declared timestamp when this post was originally created. */
   createdAt: string
-  authorDid: string
   [k: string]: unknown
 }
 

@@ -15,7 +15,6 @@ export interface Record {
   achievement: string
   /** Client-declared timestamp when this event was originally created. */
   createdAt: string
-  authorDid: string
   [k: string]: unknown
 }
 

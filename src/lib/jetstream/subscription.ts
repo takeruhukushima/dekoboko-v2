@@ -3,12 +3,15 @@ import {
   CommitUpdateEvent,
   Jetstream,
 } from "@skyware/jetstream";
-import { prisma } from "../db/prisma.js";
+import { prisma } from "@/lib/db/prisma";
 import WebSocket from "ws";
 import {
   AppVercelDekobokoPost,
   AppVercelDekobokoEvent,
-} from "@/generated/api/index.js";
+} from "@/generated/api/index";
+import { Agent } from "@atproto/api";
+
+const agent = new Agent("https://public.api.bsky.app");
 
 export const jetstream = new Jetstream({
   ws: WebSocket,
@@ -38,6 +41,9 @@ async function updatePost(
       AppVercelDekobokoPost.isRecord(record) &&
       AppVercelDekobokoPost.validateRecord(record)
     ) {
+      //作成者のプロフィールを取得
+      const profile = await agent.getProfile({ actor: event.did });
+
       await prisma.post.upsert({
         where: {
           rkey: event.commit.rkey,
@@ -45,14 +51,13 @@ async function updatePost(
         update: {
           text: record.text,
           record: JSON.stringify(record),
-          postedBy: record.authorDid,
         },
         create: {
           rkey: event.commit.rkey,
           text: record.text,
           createdAt: new Date(),
           record: JSON.stringify(record),
-          postedBy: record.authorDid,
+          author: JSON.stringify(profile.data),
         },
       });
     }
@@ -72,6 +77,9 @@ async function updateEvent(
       AppVercelDekobokoEvent.isRecord(record) &&
       AppVercelDekobokoEvent.validateRecord(record)
     ) {
+      //作成者のプロフィールを取得
+      const profile = await agent.getProfile({ actor: event.did });
+
       await prisma.event.upsert({
         where: {
           rkey: event.commit.rkey,
@@ -89,6 +97,7 @@ async function updateEvent(
           achievement: record.achievement,
           createdAt: new Date(),
           record: JSON.stringify(record),
+          author: JSON.stringify(profile.data),
         },
       });
     }

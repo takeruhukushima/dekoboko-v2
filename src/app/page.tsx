@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { getSessionAgent } from "@/lib/auth/session";
 import { Agent } from "@atproto/api";
 import {
@@ -11,14 +10,16 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, Heart, Share2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { post } from "./actions/post";
+import { prisma } from "@/lib/db/prisma";
+import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 
 export default async function Home() {
   const agent: Agent | null = await getSessionAgent();
 
   if (agent) {
+    const posts = await prisma.post.findMany();
+
     const profile = await agent.getProfile({ actor: agent.assertDid });
 
     return (
@@ -29,8 +30,8 @@ export default async function Home() {
               <CardHeader>
                 <div className="flex items-center space-x-4">
                   <Avatar>
-                    <AvatarImage src="/placeholder-avatar.jpg" />
-                    <AvatarFallback>UN</AvatarFallback>
+                    <AvatarImage src={profile.data.avatar} />
+                    <AvatarFallback>avatar</AvatarFallback>
                   </Avatar>
                   <div className="font-semibold">新規投稿</div>
                 </div>
@@ -50,42 +51,33 @@ export default async function Home() {
 
           <ScrollArea className="h-[600px]">
             <div className="space-y-4">
-              {posts.map((post) => (
-                <Card key={post.id} className="border">
-                  <CardHeader>
-                    <div className="flex items-center space-x-4">
-                      <Avatar>
-                        <AvatarImage src="/placeholder-avatar.jpg" />
-                        <AvatarFallback>{post.author[0]}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-semibold">{post.author}</div>
-                        <div className="text-sm text-gray-500">
-                          {post.timestamp}
+              {posts.map((post) => {
+                const author: ProfileView = JSON.parse(post.author);
+
+                return (
+                  <Card key={post.rkey} className="border">
+                    <CardHeader>
+                      <div className="flex items-center space-x-4">
+                        <Avatar>
+                          <AvatarImage src={author.avatar} />
+                          <AvatarFallback>{author.displayName}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-semibold">
+                            {author.displayName}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {post.createdAt.toLocaleString()}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-700">{post.content}</p>
-                  </CardContent>
-                  <CardFooter>
-                    <div className="flex space-x-4 text-gray-500">
-                      <Button variant="ghost" size="sm" className="space-x-2">
-                        <Heart className="h-4 w-4" />
-                        <span>{post.likes}</span>
-                      </Button>
-                      <Button variant="ghost" size="sm" className="space-x-2">
-                        <MessageCircle className="h-4 w-4" />
-                        <span>{post.comments}</span>
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Share2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardFooter>
-                </Card>
-              ))}
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-700">{post.text}</p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </ScrollArea>
         </div>

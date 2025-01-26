@@ -13,13 +13,7 @@ export const schemaDict = {
         key: 'tid',
         record: {
           type: 'object',
-          required: [
-            'title',
-            'description',
-            'achievement',
-            'createdAt',
-            'authorDid',
-          ],
+          required: ['title', 'description', 'achievement', 'createdAt'],
           properties: {
             title: {
               type: 'string',
@@ -39,10 +33,6 @@ export const schemaDict = {
               description:
                 'Client-declared timestamp when this event was originally created.',
             },
-            authorDid: {
-              type: 'string',
-              format: 'at-identifier',
-            },
           },
         },
       },
@@ -58,7 +48,7 @@ export const schemaDict = {
         key: 'tid',
         record: {
           type: 'object',
-          required: ['text', 'createdAt', 'authorDid'],
+          required: ['text', 'createdAt'],
           properties: {
             text: {
               type: 'string',
@@ -71,10 +61,6 @@ export const schemaDict = {
               format: 'datetime',
               description:
                 'Client-declared timestamp when this post was originally created.',
-            },
-            authorDid: {
-              type: 'string',
-              format: 'at-identifier',
             },
           },
         },

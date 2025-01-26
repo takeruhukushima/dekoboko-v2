@@ -21,8 +21,15 @@ export async function post(formData: FormData) {
   const record: AppVercelDekobokoPost.Record = {
     text: content,
     createdAt: new Date().toString(),
-    authorDid: agent.assertDid,
   };
+
+  //バリデーション
+  if (
+    !AppVercelDekobokoPost.isRecord(record) &&
+    !AppVercelDekobokoPost.validateRecord(record)
+  ) {
+    return;
+  }
 
   const rkey = TID.nextStr();
 
@@ -33,6 +40,7 @@ export async function post(formData: FormData) {
     record: record,
   });
 }
+
 export async function postEvent(formData: FormData) {
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
@@ -53,20 +61,22 @@ export async function postEvent(formData: FormData) {
     description,
     achievement,
     createdAt: new Date().toString(),
-    authorDid: agent.assertDid,
   };
+
+  //バリデーション
+  if (
+    !AppVercelDekobokoEvent.isRecord(record) &&
+    !AppVercelDekobokoEvent.validateRecord(record)
+  ) {
+    return;
+  }
 
   const rkey = TID.nextStr();
 
-  if (
-    AppVercelDekobokoEvent.isRecord(record) &&
-    AppVercelDekobokoEvent.validateRecord(record)
-  ) {
-    await agent.com.atproto.repo.putRecord({
-      collection: "app.vercel.dekoboko.event",
-      repo: agent.assertDid,
-      rkey: rkey,
-      record: record,
-    });
-  }
+  await agent.com.atproto.repo.putRecord({
+    collection: "app.vercel.dekoboko.event",
+    repo: agent.assertDid,
+    rkey: rkey,
+    record: record,
+  });
 }
