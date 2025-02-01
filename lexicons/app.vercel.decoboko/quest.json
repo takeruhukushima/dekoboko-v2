@@ -1,6 +1,6 @@
 {
   "lexicon": 1,
-  "id": "app.vercel.dekoboko.event",
+  "id": "app.vercel.dekoboko.quest",
   "defs": {
     "main": {
       "type": "record",
@@ -11,20 +11,20 @@
         "properties": {
           "title": {
             "type": "string",
-            "description": "The title of the event"
+            "description": "The title of the quest"
           },
           "description": {
             "type": "string",
-            "description": "The description of the event"
+            "description": "The description of the quest"
           },
           "achievement": {
             "type": "string",
-            "description": "Achievements for participating in events"
+            "description": "Achievements for participating in quest"
           },
           "createdAt": {
             "type": "string",
             "format": "datetime",
-            "description": "Client-declared timestamp when this event was originally created."
+            "description": "Client-declared timestamp when this quest was originally created."
           }
         }
       }

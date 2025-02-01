@@ -4,9 +4,9 @@
 import { LexiconDoc, Lexicons } from '@atproto/lexicon'
 
 export const schemaDict = {
-  AppVercelDekobokoEvent: {
+  AppVercelDekobokoQuest: {
     lexicon: 1,
-    id: 'app.vercel.dekoboko.event',
+    id: 'app.vercel.dekoboko.quest',
     defs: {
       main: {
         type: 'record',
@@ -17,21 +17,21 @@ export const schemaDict = {
           properties: {
             title: {
               type: 'string',
-              description: 'The title of the event',
+              description: 'The title of the quest',
             },
             description: {
               type: 'string',
-              description: 'The description of the event',
+              description: 'The description of the quest',
             },
             achievement: {
               type: 'string',
-              description: 'Achievements for participating in events',
+              description: 'Achievements for participating in quest',
             },
             createdAt: {
               type: 'string',
               format: 'datetime',
               description:
-                'Client-declared timestamp when this event was originally created.',
+                'Client-declared timestamp when this quest was originally created.',
             },
           },
         },
@@ -72,6 +72,6 @@ export const schemaDict = {
 export const schemas = Object.values(schemaDict)
 export const lexicons: Lexicons = new Lexicons(schemas)
 export const ids = {
-  AppVercelDekobokoEvent: 'app.vercel.dekoboko.event',
+  AppVercelDekobokoQuest: 'app.vercel.dekoboko.quest',
   AppVercelDekobokoPost: 'app.vercel.dekoboko.post',
 }

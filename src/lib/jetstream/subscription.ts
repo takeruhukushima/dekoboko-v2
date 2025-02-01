@@ -7,15 +7,12 @@ import { prisma } from "@/lib/db/prisma";
 import WebSocket from "ws";
 import {
   AppVercelDekobokoPost,
-  AppVercelDekobokoEvent,
+  AppVercelDekobokoQuest,
 } from "@/generated/api/index";
-import { Agent } from "@atproto/api";
-
-const agent = new Agent("https://public.api.bsky.app");
 
 export const jetstream = new Jetstream({
   ws: WebSocket,
-  wantedCollections: ["app.vercel.dekoboko.post", "app.vercel.dekoboko.event"],
+  wantedCollections: ["app.vercel.dekoboko.post", "app.vercel.dekoboko.quest"],
 });
 
 jetstream.on("open", () => {
@@ -41,9 +38,6 @@ async function updatePost(
       AppVercelDekobokoPost.isRecord(record) &&
       AppVercelDekobokoPost.validateRecord(record)
     ) {
-      //作成者のプロフィールを取得
-      const profile = await agent.getProfile({ actor: event.did });
-
       await prisma.post.upsert({
         where: {
           rkey: event.commit.rkey,
@@ -57,7 +51,7 @@ async function updatePost(
           text: record.text,
           createdAt: new Date(),
           record: JSON.stringify(record),
-          author: JSON.stringify(profile.data),
+          did: event.did,
         },
       });
     }
@@ -68,36 +62,33 @@ async function updatePost(
 
 async function updateEvent(
   event:
-    | CommitCreateEvent<"app.vercel.dekoboko.event">
-    | CommitUpdateEvent<"app.vercel.dekoboko.event">
+    | CommitCreateEvent<"app.vercel.dekoboko.quest">
+    | CommitUpdateEvent<"app.vercel.dekoboko.quest">
 ) {
   try {
     const record = event.commit.record;
     if (
-      AppVercelDekobokoEvent.isRecord(record) &&
-      AppVercelDekobokoEvent.validateRecord(record)
+      AppVercelDekobokoQuest.isRecord(record) &&
+      AppVercelDekobokoQuest.validateRecord(record)
     ) {
-      //作成者のプロフィールを取得
-      const profile = await agent.getProfile({ actor: event.did });
-
-      await prisma.event.upsert({
+      await prisma.quest.upsert({
         where: {
           rkey: event.commit.rkey,
         },
         update: {
-          text: record.title,
+          title: record.title,
           description: record.description,
           achievement: record.achievement,
           record: JSON.stringify(record),
         },
         create: {
           rkey: event.commit.rkey,
-          text: record.title,
+          title: record.title,
           description: record.description,
           achievement: record.achievement,
           createdAt: new Date(),
           record: JSON.stringify(record),
-          author: JSON.stringify(profile.data),
+          did: event.did,
         },
       });
     }
@@ -127,20 +118,20 @@ jetstream.onDelete("app.vercel.dekoboko.post", async (event) => {
   }
 });
 
-jetstream.onCreate("app.vercel.dekoboko.event", async (event) => {
-  console.log(`New Event: ${event.commit.rkey}`);
+jetstream.onCreate("app.vercel.dekoboko.quest", async (event) => {
+  console.log(`New Quest: ${event.commit.rkey}`);
   await updateEvent(event);
 });
 
-jetstream.onUpdate("app.vercel.dekoboko.event", async (event) => {
-  console.log(`Updated Event: ${event.commit.rkey}`);
+jetstream.onUpdate("app.vercel.dekoboko.quest", async (event) => {
+  console.log(`Updated Quest: ${event.commit.rkey}`);
   await updateEvent(event);
 });
 
-jetstream.onDelete("app.vercel.dekoboko.event", async (event) => {
-  console.log(`Deleted Event: ${event.commit.rkey}`);
+jetstream.onDelete("app.vercel.dekoboko.quest", async (event) => {
+  console.log(`Deleted Quest: ${event.commit.rkey}`);
   try {
-    await prisma.event.delete({
+    await prisma.quest.delete({
       where: { rkey: event.commit.rkey },
     });
   } catch (e) {
