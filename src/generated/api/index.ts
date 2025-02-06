@@ -3,7 +3,7 @@
  */
 import { XrpcClient, FetchHandler, FetchHandlerOptions } from '@atproto/xrpc'
 import { schemas } from './lexicons'
-import { CID } from 'multiformats/cid'
+import { CID } from 'multiformats'
 import * as AppVercelDekobokoQuest from './types/app/vercel/dekoboko/quest'
 import * as AppVercelDekobokoPost from './types/app/vercel/dekoboko/post'
 
