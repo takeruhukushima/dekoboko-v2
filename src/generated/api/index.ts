@@ -4,6 +4,12 @@
 import { XrpcClient, FetchHandler, FetchHandlerOptions } from '@atproto/xrpc'
 import { schemas } from './lexicons'
 import { CID } from 'multiformats'
+import {
+    ComAtprotoRepoListRecords,
+    ComAtprotoRepoGetRecord,
+    ComAtprotoRepoCreateRecord,
+    ComAtprotoRepoDeleteRecord,
+  } from '@atproto/api'
 import * as AppVercelDekobokoQuest from './types/app/vercel/dekoboko/quest'
 import * as AppVercelDekobokoPost from './types/app/vercel/dekoboko/post'
 
