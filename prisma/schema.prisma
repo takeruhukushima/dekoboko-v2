@@ -17,9 +17,15 @@ model AuthState {
   state String
 }
 
+enum PostType {
+  totu
+  boko
+}
+
 model Post {
   rkey      String   @id
   text      String
+  type      PostType
   createdAt DateTime
   did       String
   record    String

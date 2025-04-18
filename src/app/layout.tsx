@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Navigation } from "@/components/ui/navbar";
+import { Toaster } from "@/components/ui/toaster";
 
 // フォントの設定
 const geistSans = localFont({
@@ -36,8 +37,9 @@ export default function RootLayout({
         <main className="container mx-auto py-8">{children}</main>
 
         <footer className="bg-gray-800 text-white text-center p-4 w-screen fixed bottom-0">
-          <p>© 2025 Dekoboko App. All Rights Reserved.</p>
+          <p> 2025 Dekoboko App. All Rights Reserved.</p>
         </footer>
+        <Toaster />
       </body>
     </html>
   );

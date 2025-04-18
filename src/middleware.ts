@@ -14,23 +14,19 @@ const publicRoutes = [
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
-
+  // 公開ルートの場合はそのまま通す
   if (publicRoutes.some((route) => pathname.startsWith(route))) {
-    return response;
+    return NextResponse.next();
   }
 
-  const sessionCookie = request.cookies.get("sid");
-
-  if (!sessionCookie) {
+  // セッションクッキーの確認
+  const sessionCookie = request.cookies.get("session");
+  if (!sessionCookie?.value) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  return response;
+  // セッションが存在する場合は次へ
+  return NextResponse.next();
 }
 
 export const config = {
