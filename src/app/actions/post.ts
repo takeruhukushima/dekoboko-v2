@@ -55,6 +55,7 @@ export async function post(formData: FormData) {
       data: {
         rkey: rkey,
         text: content,
+        type: type,
         createdAt: new Date(),
         did: agent.assertDid,
         record: JSON.stringify(record),

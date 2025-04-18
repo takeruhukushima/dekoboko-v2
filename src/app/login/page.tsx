@@ -12,7 +12,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 interface PageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function LoginPage({ searchParams }: PageProps) {
@@ -24,7 +24,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
   }
 
   // searchParamsを非同期で処理
-  const params = await Promise.resolve(searchParams);
+  const params = await searchParams;
   const error = params.error as string | undefined;
 
   return (

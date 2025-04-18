@@ -25,7 +25,7 @@ enum PostType {
 model Post {
   rkey      String   @id
   text      String
-  type      PostType
+  type      PostType @default(totu)
   createdAt DateTime
   did       String
   record    String

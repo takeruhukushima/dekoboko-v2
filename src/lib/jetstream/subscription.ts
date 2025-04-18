@@ -44,11 +44,13 @@ async function updatePost(
         },
         update: {
           text: record.text,
+          type: record.type as "totu" | "boko",
           record: JSON.stringify(record),
         },
         create: {
           rkey: event.commit.rkey,
           text: record.text,
+          type: record.type as "totu" | "boko",
           createdAt: new Date(),
           record: JSON.stringify(record),
           did: event.did,
