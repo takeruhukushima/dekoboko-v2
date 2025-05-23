@@ -12,31 +12,36 @@ export default function PostCard({
   author: ProfileView;
 }) {
   return (
-    <Card key={post.rkey} className="border">
-      <CardHeader>
+    <Card key={post.rkey} className={`border-l-4 ${post.type === 'totu' ? 'border-l-blue-500' : 'border-l-red-500'}`}>
+      <CardHeader className="p-4">
         <div className="flex items-center justify-between">
           <a
-            className="flex items-center space-x-4"
+            className="flex items-center space-x-2"
             href={`/profile/${author.did}`}
           >
-            <Avatar>
+            <Avatar className="h-8 w-8">
               <AvatarImage src={author.avatar} />
-              <AvatarFallback>{author.displayName}</AvatarFallback>
+              <AvatarFallback>{author.displayName?.[0] || 'U'}</AvatarFallback>
             </Avatar>
             <div>
-              <div className="font-semibold">{author.displayName}</div>
-              <div className="text-sm text-gray-500">
-                {new Date(post.createdAt).toLocaleString()}
-              </div>
+              <div className="font-semibold text-sm">{author.displayName || '匿名ユーザー'}</div>
             </div>
           </a>
-          <Badge variant={post.type === "totu" ? "default" : "destructive"}>
-            {post.type === "totu" ? "凸" : "凹"}
-          </Badge>
+          <div className="flex items-center space-x-2">
+            <span className="text-xs text-gray-500">
+              {new Date(post.createdAt).toLocaleTimeString()}
+            </span>
+            <Badge 
+              variant={post.type === "totu" ? "default" : "destructive"}
+              className="rounded-full px-2 py-0.5 text-xs"
+            >
+              {post.type === "totu" ? "凸" : "凹"}
+            </Badge>
+          </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <p className="text-gray-700">{post.text}</p>
+      <CardContent className="px-4 pb-4 pt-0">
+        <p className="text-gray-800">{post.text}</p>
       </CardContent>
     </Card>
   );

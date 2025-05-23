@@ -14,12 +14,10 @@ export default async function Quest() {
     });
 
     return (
-      <div className="container mx-auto px-4 py-12 max-w-5xl">
+      <div className="container mx-auto px-4 py-12 pb-24 max-w-5xl relative min-h-screen">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-zen font-bold">クエスト一覧</h1>
         </div>
-
-        <QuestForm />
 
         <div className="space-y-8">
           {quests.map(async (quest) => {
@@ -31,6 +29,11 @@ export default async function Quest() {
               <QuestCard quest={quest} author={author.data} key={quest.rkey} />
             );
           })}
+        </div>
+        
+        {/* フローティングアクションボタン */}
+        <div className="fixed bottom-24 right-6 z-10">
+          <QuestForm />
         </div>
       </div>
     );

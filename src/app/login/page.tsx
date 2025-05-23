@@ -8,8 +8,20 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { cookies } from "next/headers";
+import { getIronSession } from "iron-session";
 import { redirect } from "next/navigation";
+import { sessionOptions, SessionData } from "@/lib/session";
+import { cookies } from "next/headers";
+
+declare module "iron-session" {
+  interface IronSessionData extends SessionData {}
+}
+
+// Workaround for Next.js 13+ cookies()
+const getServerSession = async () => {
+  const cookieStore = cookies();
+  return getIronSession<SessionData>(cookieStore as any, sessionOptions);
+};
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -17,9 +29,9 @@ interface PageProps {
 
 export default async function LoginPage({ searchParams }: PageProps) {
   // セッションをチェック
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("session");
-  if (sessionCookie?.value) {
+  const session = await getServerSession();
+
+  if (session.isLoggedIn && session.did) {
     redirect("/");
   }
 
