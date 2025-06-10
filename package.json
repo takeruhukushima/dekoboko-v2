@@ -6,7 +6,14 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "emulators": "firebase emulators:start --import=./emulator-data --export-on-exit --inspect-functions",
+    "emulators:start": "firebase emulators:start --import=./emulator-data --export-on-exit",
+    "emulators:exec": "firebase emulators:exec --import=./emulator-data --export-on-exit"
   },
   "dependencies": {
     "@atproto/api": "^0.13.23",
@@ -15,9 +22,10 @@
     "@atproto/lex-cli": "^0.5.4",
     "@atproto/oauth-client-node": "^0.2.5",
     "@blockcerts/blockcerts-verifier": "^1.70.0",
-    "@prisma/client": "^6.1.0",
+    "@prisma/client": "^6.9.0",
     "@radix-ui/react-avatar": "^1.1.2",
     "@radix-ui/react-dialog": "^1.1.7",
+    "@radix-ui/react-dropdown-menu": "^2.1.15",
     "@radix-ui/react-label": "^2.1.1",
     "@radix-ui/react-popover": "^1.1.7",
     "@radix-ui/react-radio-group": "^1.2.4",
@@ -40,9 +48,11 @@
     "lucide-react": "^0.460.0",
     "multiformats": "^11.0.2",
     "next": "15.1.2",
+    "prisma": "^6.9.0",
     "react": "^18.3.1",
     "react-day-picker": "^9.6.7",
     "react-dom": "^18.3.1",
+    "sonner": "^2.0.5",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "ws": "^8.18.0"
@@ -54,7 +64,6 @@
     "eslint": "^8",
     "eslint-config-next": "15.0.3",
     "postcss": "^8",
-    "prisma": "^6.1.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

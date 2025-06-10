@@ -24,12 +24,18 @@ const safeParseDate = (date: string | Date | undefined): Date | undefined => {
 };
 
 interface FilterProps {
-  onFilterChange: (type: PostType | null, date: Date | undefined) => void;
+  filterType: PostType | null;
+  setFilterType: (type: PostType | null) => void;
+  filterDate: Date | undefined;
+  setFilterDate: (date: Date | undefined) => void;
 }
 
-export default function TimelineFilter({ onFilterChange }: FilterProps) {
-  const [selectedType, setSelectedType] = useState<PostType | null>(null);
-  const [date, setDate] = useState<Date | undefined>();
+export default function TimelineFilter({ 
+  filterType, 
+  setFilterType, 
+  filterDate, 
+  setFilterDate 
+}: FilterProps) {
   const [isMounted, setIsMounted] = useState(false);
 
   // Only render date-related UI after mounting to avoid hydration mismatches
@@ -44,75 +50,77 @@ export default function TimelineFilter({ onFilterChange }: FilterProps) {
   };
 
   const handleTypeChange = (type: PostType | null) => {
-    setSelectedType(type);
-    onFilterChange(type, date);
+    setFilterType(type);
   };
 
   const handleDateChange = (newDate: Date | undefined) => {
-    // Ensure we're working with a proper Date object
     const normalizedDate = newDate ? new Date(newDate.setHours(0, 0, 0, 0)) : undefined;
-    setDate(normalizedDate);
-    onFilterChange(selectedType, normalizedDate);
+    setFilterDate(normalizedDate);
   };
 
   return (
-    <div className="flex items-center space-x-4 mb-4">
-      <div className="space-x-2">
+    <div className="flex flex-wrap items-center gap-4 p-2 bg-white rounded-lg shadow">
+      <div className="flex items-center space-x-2">
         <Button
-          variant={selectedType === null ? "default" : "outline"}
+          variant={filterType === null ? 'default' : 'outline'}
+          size="sm"
           onClick={() => handleTypeChange(null)}
         >
           すべて
         </Button>
         <Button
-          variant={selectedType === "totu" ? "default" : "outline"}
-          onClick={() => handleTypeChange("totu")}
+          variant={filterType === 'totu' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => handleTypeChange('totu')}
         >
           凸
         </Button>
         <Button
-          variant={selectedType === "boko" ? "default" : "outline"}
-          onClick={() => handleTypeChange("boko")}
+          variant={filterType === 'boko' ? 'destructive' : 'outline'}
+          size="sm"
+          onClick={() => handleTypeChange('boko')}
         >
           凹
         </Button>
       </div>
 
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant={date ? "default" : "outline"}
-            className={cn(
-              "justify-start text-left font-normal",
-              !date && "text-muted-foreground"
-            )}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {isMounted && date ? format(date, "PPP", { locale: ja }) : "日付で絞り込み"}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={handleDateChange}
-            initialFocus
-            locale={ja}
-            disabled={(date) => date > new Date()}
-          />
-        </PopoverContent>
-      </Popover>
+      {isMounted && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className={cn(
+                "w-[240px] justify-start text-left font-normal",
+                !filterDate && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {filterDate ? formatDate(filterDate) : <span>日付でフィルター</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={filterDate}
+              onSelect={handleDateChange}
+              initialFocus
+              locale={ja}
+            />
+          </PopoverContent>
+        </Popover>
+      )}
 
-      {(selectedType || date) && (
+      {(filterType || filterDate) && (
         <Button
           variant="ghost"
+          size="sm"
           onClick={() => {
-            setSelectedType(null);
-            setDate(undefined);
-            onFilterChange(null, undefined);
+            setFilterType(null);
+            setFilterDate(undefined);
           }}
         >
-          フィルターをクリア
+          フィルターをリセット
         </Button>
       )}
     </div>

@@ -1,6 +1,9 @@
+version: '3.8'
+
 services:
+  # PostgreSQL Database
   db:
-    image: postgres:latest
+    image: postgres:15-alpine
     env_file:
       - ./.env
     environment:
@@ -8,23 +11,104 @@ services:
       - POSTGRES_DB=$DB_NAME
       - POSTGRES_USER=$DB_USER
       - POSTGRES_PASSWORD=$DB_PASS
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_USE_FIRESTORE_EMULATOR=true
+      - FIRESTORE_EMULATOR_HOST=firestore:8080
+      - FIREBASE_AUTH_EMULATOR_HOST=auth:9099
+      - FIREBASE_STORAGE_EMULATOR_HOST=storage:9199
+    ports:
+      - "3000:3000"
+      - "4000:4000"  # Firebase Emulator UI
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+      firestore:
+        condition: service_healthy
+      auth:
+        condition: service_healthy
+      storage:
+        condition: service_healthy
     networks:
       - app-network
 
-  app:
-    build:
-      context: ./
-    env_file:
-      - ./.env
+  # Firebase Emulator Suite
+  firebase-emulator:
+    image: ghcr.io/thyrlian/firebase:latest
     ports:
-      - 3000:3000
+      - "4000:4000"  # Emulator UI
+      - "8080:8080"  # Firestore
+      - "9099:9099"  # Authentication
+      - "9199:9199"  # Storage
+      - "5001:5001"  # Functions
+      - "9000:9000"  # Hosting
+    environment:
+      - FIREBASE_PROJECT_ID=dekoboko-dev
+      - FIREBASE_AUTH_EMULATOR_HOST=0.0.0.0:9099
+      - FIRESTORE_EMULATOR_HOST=0.0.0.0:8080
+      - FIREBASE_STORAGE_EMULATOR_HOST=0.0.0.0:9199
     volumes:
-      - .:/app
+      - ./firebase.json:/home/node/firebase.json
+      - ./firestore.rules:/home/node/firestore.rules
+      - ./firestore.indexes.json:/home/node/firestore.indexes.json
+      - firebase-emulator:/home/node/.cache/firebase/emulators
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://firebase-emulator:4000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Alias services for emulator communication
+  firestore:
+    image: alpine/socat
+    command: tcp-listen:8080,fork,reuseaddr tcp-connect:firebase-emulator:8080
     depends_on:
-      - db
+      - firebase-emulator
+    networks:
+      - app-network
+
+  auth:
+    image: alpine/socat
+    command: tcp-listen:9099,fork,reuseaddr tcp-connect:firebase-emulator:9099
+    depends_on:
+      - firebase-emulator
+    networks:
+      - app-network
+
+  storage:
+    image: alpine/socat
+    command: tcp-listen:9199,fork,reuseaddr tcp-connect:firebase-emulator:9199
+    depends_on:
+      - firebase-emulator
     networks:
       - app-network
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  postgres_data:
+  firebase-emulator:

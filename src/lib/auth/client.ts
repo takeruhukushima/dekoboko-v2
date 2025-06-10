@@ -1,5 +1,5 @@
 import { NodeOAuthClient } from "@atproto/oauth-client-node";
-import { SessionStore, StateStore } from "./storage";
+import { FirebaseStateStore, FirebaseSessionStore } from "./firebase-storage";
 
 export const createClient = async () => {
   const publicUrl = process.env.PUBLIC_URL;
@@ -24,7 +24,7 @@ export const createClient = async () => {
       token_endpoint_auth_method: "none",
       dpop_bound_access_tokens: true,
     },
-    stateStore: new StateStore(),
-    sessionStore: new SessionStore(),
+    stateStore: new FirebaseStateStore(),
+    sessionStore: new FirebaseSessionStore(),
   });
 };

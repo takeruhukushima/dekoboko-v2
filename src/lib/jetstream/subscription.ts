@@ -3,7 +3,8 @@ import {
   CommitUpdateEvent,
   Jetstream,
 } from "@skyware/jetstream";
-import { prisma } from "@/lib/db/prisma";
+import { db } from "@/lib/firevase";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import WebSocket from "ws";
 import {
   AppVercelDekobokoPost,
@@ -24,13 +25,26 @@ jetstream.on("close", () => {
 });
 
 jetstream.on("error", (error) => {
-  console.log(error);
+  console.log("Jetstream error:", error);
 });
 
+interface CommitEvent {
+  commit: {
+    cid: { toString(): string };
+    author: string;
+    rkey: string;
+    operation: 'create' | 'update' | 'delete';
+    record: any;
+  };
+}
+
 async function updatePost(
-  event:
-    | CommitCreateEvent<"app.vercel.dekoboko.post">
-    | CommitUpdateEvent<"app.vercel.dekoboko.post">
+  event: CommitEvent & {
+    commit: {
+      record: any;
+      operation: 'create' | 'update' | 'delete';
+    };
+  }
 ) {
   try {
     const record = event.commit.record;
@@ -38,34 +52,36 @@ async function updatePost(
       AppVercelDekobokoPost.isRecord(record) &&
       AppVercelDekobokoPost.validateRecord(record)
     ) {
-      await prisma.post.upsert({
-        where: {
-          rkey: event.commit.rkey,
-        },
-        update: {
-          text: record.text,
-          type: record.type as "totu" | "boko",
-          record: JSON.stringify(record),
-        },
-        create: {
-          rkey: event.commit.rkey,
-          text: record.text,
-          type: record.type as "totu" | "boko",
-          createdAt: new Date(),
-          record: JSON.stringify(record),
-          did: event.did,
-        },
-      });
+      const postId = event.commit.cid?.toString() || event.commit.rkey;
+      const postRef = doc(db, "posts", postId);
+      const postData: Record<string, any> = {
+        text: record.text,
+        type: record.type,
+        did: event.commit.author,
+        rkey: event.commit.rkey,
+        record: JSON.stringify(record),
+        updatedAt: serverTimestamp(),
+      };
+
+      if (event.commit.operation === 'create') {
+        postData.createdAt = serverTimestamp();
+      }
+
+      await setDoc(postRef, postData, { merge: true });
+      console.log(`Synced post to Firestore: ${postId}`);
     }
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.error("Error updating post:", error);
   }
 }
 
 async function updateEvent(
-  event:
-    | CommitCreateEvent<"app.vercel.dekoboko.quest">
-    | CommitUpdateEvent<"app.vercel.dekoboko.quest">
+  event: CommitEvent & {
+    commit: {
+      record: any;
+      operation: 'create' | 'update' | 'delete';
+    };
+  }
 ) {
   try {
     const record = event.commit.record;
@@ -73,70 +89,100 @@ async function updateEvent(
       AppVercelDekobokoQuest.isRecord(record) &&
       AppVercelDekobokoQuest.validateRecord(record)
     ) {
-      await prisma.quest.upsert({
-        where: {
-          rkey: event.commit.rkey,
-        },
-        update: {
-          title: record.title,
-          description: record.description,
-          achievement: record.achievement,
-          record: JSON.stringify(record),
-        },
-        create: {
-          rkey: event.commit.rkey,
-          title: record.title,
-          description: record.description,
-          achievement: record.achievement,
-          createdAt: new Date(),
-          record: JSON.stringify(record),
-          did: event.did,
-        },
-      });
+      const questId = event.commit.cid?.toString() || event.commit.rkey;
+      const questRef = doc(db, "quests", questId);
+      const questData: Record<string, any> = {
+        title: record.title,
+        description: record.description,
+        achievement: record.achievement,
+        did: event.commit.author,
+        rkey: event.commit.rkey,
+        record: JSON.stringify(record),
+        updatedAt: serverTimestamp(),
+      };
+
+      if (event.commit.operation === 'create') {
+        questData.createdAt = serverTimestamp();
+      }
+
+      await setDoc(questRef, questData, { merge: true });
+      console.log(`Synced quest to Firestore: ${questId}`);
     }
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.error("Error updating quest:", error);
   }
 }
 
-jetstream.onCreate("app.vercel.dekoboko.post", async (event) => {
-  console.log(`New Post: ${event.commit.rkey}`);
-  await updatePost(event);
-});
+// イベントハンドラの型を適切に扱うためのヘルパー関数
+const handlePostEvent = async (event: any) => {
+  console.log(`Post ${event.commit.operation}: ${event.commit.rkey}`);
+  try {
+    await updatePost({
+      ...event,
+      commit: {
+        ...event.commit,
+        author: event.commit.author || event.commit.did || 'unknown',
+        cid: event.commit.cid || { toString: () => event.commit.rkey },
+      },
+    });
+  } catch (error) {
+    console.error('Error handling post event:', error);
+  }
+};
 
-jetstream.onUpdate("app.vercel.dekoboko.post", async (event) => {
-  console.log(`Updated Post: ${event.commit.rkey}`);
-  await updatePost(event);
-});
+const handleQuestEvent = async (event: any) => {
+  console.log(`Quest ${event.commit.operation}: ${event.commit.rkey}`);
+  try {
+    await updateEvent({
+      ...event,
+      commit: {
+        ...event.commit,
+        author: event.commit.author || event.commit.did || 'unknown',
+        cid: event.commit.cid || { toString: () => event.commit.rkey },
+      },
+    });
+  } catch (error) {
+    console.error('Error handling quest event:', error);
+  }
+};
 
-jetstream.onDelete("app.vercel.dekoboko.post", async (event) => {
+// イベントハンドラを登録
+jetstream.onCreate("app.vercel.dekoboko.post", handlePostEvent);
+jetstream.onUpdate("app.vercel.dekoboko.post", handlePostEvent);
+jetstream.onCreate("app.vercel.dekoboko.quest", handleQuestEvent);
+jetstream.onUpdate("app.vercel.dekoboko.quest", handleQuestEvent);
+
+// 削除イベントの処理
+jetstream.onDelete("app.vercel.dekoboko.post", async (event: any) => {
   console.log(`Deleted Post: ${event.commit.rkey}`);
   try {
-    await prisma.post.delete({
-      where: { rkey: event.commit.rkey },
-    });
-  } catch (e) {
-    console.log(e);
+    const postRef = doc(db, "posts", event.commit.rkey);
+    await setDoc(
+      postRef, 
+      { 
+        deletedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }, 
+      { merge: true }
+    );
+  } catch (error) {
+    console.error("Error marking post as deleted:", error);
   }
 });
 
-jetstream.onCreate("app.vercel.dekoboko.quest", async (event) => {
-  console.log(`New Quest: ${event.commit.rkey}`);
-  await updateEvent(event);
-});
-
-jetstream.onUpdate("app.vercel.dekoboko.quest", async (event) => {
-  console.log(`Updated Quest: ${event.commit.rkey}`);
-  await updateEvent(event);
-});
-
-jetstream.onDelete("app.vercel.dekoboko.quest", async (event) => {
+jetstream.onDelete("app.vercel.dekoboko.quest", async (event: any) => {
   console.log(`Deleted Quest: ${event.commit.rkey}`);
   try {
-    await prisma.quest.delete({
-      where: { rkey: event.commit.rkey },
-    });
-  } catch (e) {
-    console.log(e);
+    const questRef = doc(db, "quests", event.commit.rkey);
+    await setDoc(
+      questRef, 
+      { 
+        deletedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }, 
+      { merge: true }
+    );
+  } catch (error) {
+    console.error("Error marking quest as deleted:", error);
   }
 });

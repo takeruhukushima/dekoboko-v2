@@ -1,12 +1,17 @@
 export type PostType = 'totu' | 'boko';
 
 export interface Post {
-  rkey: string;
+  id: string;
   text: string;
   type: PostType;
-  createdAt: Date;
-  did: string;
-  record: string;
+  createdAt: Date | string;
+  updatedAt?: Date | string;
+  userId: string;
+  userDid: string;  // ユーザーのDID
+  userHandle: string;
+  userDisplayName: string;
+  userAvatar?: string;
+  status?: 'active' | 'deleted';
 }
 
 export interface AppVercelDekobokoPostRecord {

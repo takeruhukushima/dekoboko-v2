@@ -9,8 +9,14 @@ import { Post, PostType } from "@/types/post";
 import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 
 // Helper to ensure consistent date parsing
-const parseDate = (dateString: string | Date): Date => {
-  return dateString instanceof Date ? dateString : parseISO(dateString);
+const parseDate = (date: string | Date): Date => {
+  if (date instanceof Date) return date;
+  try {
+    return parseISO(date);
+  } catch (e) {
+    console.error('Error parsing date:', e);
+    return new Date();
+  }
 };
 
 interface TimelineProps {
@@ -62,37 +68,31 @@ export default function Timeline({ initialPosts, profile }: TimelineProps) {
     setPosts(filterPosts(initialPosts, type, date));
   };
 
-  // ポストを凸と凹で分割
   const totuPosts = posts.filter(post => post.type === 'totu');
-  const bokoPosts = posts.filter(post => post.type === 'boko');
+  const filteredPosts = filterPosts(posts, filterType, filterDate);
 
   return (
     <div className="space-y-4">
-      <TimelineFilter onFilterChange={handleFilterChange} />
-      
-      <ScrollArea className="h-[600px]">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 左側: 凹ポスト */}
-          <div className="space-y-4">
-            {bokoPosts.map((post) => (
-              <PostCard 
-                key={post.rkey}
-                post={post}
-                author={profile}
-              />
-            ))}
-          </div>
-          
-          {/* 右側: 凸ポスト */}
-          <div className="space-y-4">
-            {totuPosts.map((post) => (
-              <PostCard 
-                key={post.rkey}
-                post={post}
-                author={profile}
-              />
-            ))}
-          </div>
+      <TimelineFilter
+        filterType={filterType}
+        setFilterType={setFilterType}
+        filterDate={filterDate}
+        setFilterDate={setFilterDate}
+      />
+      <ScrollArea className="h-[calc(100vh-200px)] pr-4">
+        <div className="space-y-4">
+          {filteredPosts.map((post) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              profile={{
+                did: post.userId,
+                handle: post.userHandle,
+                displayName: post.userDisplayName,
+                avatar: post.userAvatar
+              }}
+            />
+          ))}
         </div>
       </ScrollArea>
     </div>

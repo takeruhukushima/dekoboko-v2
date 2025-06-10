@@ -1,6 +1,6 @@
 import { getSessionAgent } from "@/lib/auth/session";
 import { Agent } from "@atproto/api";
-import { prisma } from "@/lib/db/prisma";
+import { getPosts } from "@/lib/firevase";
 import PostForm from "@/components/home/postForm";
 import Timeline from "@/components/timeline/timeline";
 import { redirect } from "next/navigation";
@@ -12,16 +12,10 @@ export default async function Home() {
     redirect("/login");
   }
 
-  const posts = await prisma.post.findMany({
-    orderBy: { createdAt: "desc" },
-  }).then(posts => posts.map(post => {
-    const record = JSON.parse(post.record);
-    return {
-      ...post,
-      type: record.type as "totu" | "boko"
-    };
-  }));
-
+  // Get posts from Firestore
+  const posts = await getPosts();
+  
+  // Get user profile from AT Protocol
   const profile = await agent.getProfile({ actor: agent.assertDid });
 
   return (

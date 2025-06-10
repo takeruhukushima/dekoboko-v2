@@ -1,18 +1,17 @@
 "use server";
 
-import { AppVercelDekobokoPost } from "@/generated/api";
 import { getSessionAgent } from "@/lib/auth/session";
-import { Agent } from "@atproto/api";
 import { redirect } from "next/navigation";
-import { TID } from "@atproto/common";
-import { prisma } from "@/lib/db/prisma";
+import { addPost, deletePost } from "@/lib/firevase";
+
+export { deletePost };
 import { revalidatePath } from "next/cache";
 
 export async function post(formData: FormData) {
   try {
     const content = formData.get("text") as string;
     const type = formData.get("type") as "totu" | "boko";
-    const agent: Agent | null = await getSessionAgent();
+    const agent = await getSessionAgent();
 
     if (!agent) {
       redirect("/login");
@@ -26,46 +25,27 @@ export async function post(formData: FormData) {
       throw new Error("投稿タイプが正しく選択されていません。");
     }
 
-    const record = {
-      text: content,
-      type: type,
-      createdAt: new Date().toISOString(),
-    };
-
-    //バリデーション
-    if (
-      !AppVercelDekobokoPost.isRecord(record) &&
-      !AppVercelDekobokoPost.validateRecord(record)
-    ) {
-      throw new Error("投稿の形式が正しくありません。");
+    // Get user profile from AT Protocol
+    const profile = await agent.getProfile({ actor: agent.assertDid });
+    
+    if (!profile.success) {
+      throw new Error("ユーザー情報の取得に失敗しました。");
     }
 
-    const rkey = TID.nextStr();
-
-    // ATProtoに投稿を保存
-    await agent.com.atproto.repo.putRecord({
-      collection: "app.vercel.dekoboko.post",
-      repo: agent.assertDid,
-      rkey: rkey,
-      record: record,
+    // Save to Firestore
+    await addPost({
+      text: content,
+      type,
+      userId: agent.assertDid,
+      userDid: agent.assertDid, // Add userDid
+      userHandle: profile.data.handle || '',
+      userDisplayName: profile.data.displayName || profile.data.handle || '',
+      userAvatar: profile.data.avatar || ''
     });
 
-    // Prismaデータベースに投稿を保存
-    await prisma.post.create({
-      data: {
-        rkey: rkey,
-        text: content,
-        type: type,
-        createdAt: new Date(),
-        did: agent.assertDid,
-        record: JSON.stringify(record),
-      },
-    });
-
-    // キャッシュを更新
     revalidatePath("/");
   } catch (error) {
-    console.error("投稿エラー:", error);
+    console.error("Error creating post:", error);
     throw error;
   }
 }

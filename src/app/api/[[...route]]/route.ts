@@ -6,16 +6,34 @@ import { sessionOptions, SessionData } from "@/lib/session";
 
 const app = new Hono().basePath("/api");
 
-const client = await createClient();
+// Create client for OAuth
+let client: any = null;
+
+try {
+  client = await createClient();
+} catch (error) {
+  console.error("Failed to create OAuth client:", error);
+}
 
 declare module "iron-session" {
   interface IronSessionData extends SessionData {}
 }
 
 app.get("/oauth/callback", async (c) => {
+  if (!client) {
+    console.error("OAuth client not initialized");
+    return c.redirect("/login?error=server_error");
+  }
+
   const params = new URLSearchParams(c.req.url.split("?")[1]);
+  
   try {
     const { session: authSession } = await client.callback(params);
+    
+    if (!authSession?.did) {
+      console.error("No DID in auth session");
+      return c.redirect("/login?error=auth_failed");
+    }
     
     // Get the existing session
     const clientSession = await getIronSession<SessionData>(c.req.raw, c.res, sessionOptions);
@@ -26,12 +44,12 @@ app.get("/oauth/callback", async (c) => {
     
     // Save the session
     await clientSession.save();
+    
+    return c.redirect("/");
   } catch (err) {
-    console.error({ err }, "oauth callback failed");
+    console.error("OAuth callback failed:", err);
     return c.redirect("/login?error=auth_failed");
   }
-
-  return c.redirect("/");
 });
 
 export const GET = handle(app);
