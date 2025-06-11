@@ -1,5 +1,3 @@
-"use server";
-
 export const dynamic = 'force-dynamic'; // 動的レンダリングを有効化
 
 import ProfileCard from "@/components/profile/profile";
