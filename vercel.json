@@ -1,0 +1,28 @@
+{
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    },
+    "app/actions/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/oauth/callback",
+      "dest": "/api/oauth/callback",
+      "methods": ["GET"],
+      "headers": {
+        "Cache-Control": "no-store, max-age=0"
+      }
+    },
+    {
+      "src": "/login",
+      "dest": "/login",
+      "methods": ["POST"],
+      "headers": {
+        "Cache-Control": "no-store, max-age=0"
+      }
+    }
+  ]
+}

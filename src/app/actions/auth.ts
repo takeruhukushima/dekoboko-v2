@@ -83,22 +83,43 @@ function validateAndFormatHandle(handle: string): string {
   return `${username}.bsky.social`;
 }
 
-export async function authorize(formData: FormData) {
-  const handle = formData.get("handle") as string;
+const AUTH_TIMEOUT_MS = 30000; // 30秒でタイムアウト
 
-  if (!handle) {
-    throw new Error("ハンドルが指定されていません。");
-  }
+export async function authorize(formData: FormData) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), AUTH_TIMEOUT_MS);
 
   try {
+    const handle = formData.get("handle") as string;
+
+    if (!handle) {
+      throw new Error("ハンドルが指定されていません。");
+    }
+
+    console.log('Starting authorization for handle:', handle);
+    
     const formattedHandle = validateAndFormatHandle(handle);
-    const url = await client.authorize(formattedHandle, {
-      scope: "atproto transition:generic",
-    });
+    
+    // クライアントにタイムアウトシグナルを渡す
+    const url = await Promise.race([
+      client.authorize(formattedHandle, {
+        scope: "atproto transition:generic",
+      }),
+      new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('認証処理がタイムアウトしました。もう一度お試しください。')), AUTH_TIMEOUT_MS - 1000)
+      )
+    ]);
+    
+    console.log('Authorization successful, redirecting to:', url);
     redirect(url.toString());
   } catch (error) {
     console.error('Authentication error:', error);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('認証処理が時間内に完了しませんでした。時間をおいて再度お試しください。');
+    }
     throw error;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
