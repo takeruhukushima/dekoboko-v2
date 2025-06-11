@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'; // 動的レンダリングを有効化
+
 import { authorize } from "../actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
