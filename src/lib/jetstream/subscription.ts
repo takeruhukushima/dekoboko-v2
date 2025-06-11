@@ -1,3 +1,8 @@
+// サーバーサイドでのみ実行されることを保証
+if (typeof window !== 'undefined') {
+  throw new Error('This module should only be used on the server side');
+}
+
 import {
   CommitCreateEvent,
   CommitUpdateEvent,
@@ -10,6 +15,11 @@ import {
   AppVercelDekobokoPost,
   AppVercelDekobokoQuest,
 } from "@/generated/api/index";
+
+// 環境変数が設定されているか確認
+if (!process.env.NEXT_PUBLIC_BSKY_SERVICE) {
+  throw new Error('NEXT_PUBLIC_BSKY_SERVICE is not set');
+}
 
 export const jetstream = new Jetstream({
   ws: WebSocket,
