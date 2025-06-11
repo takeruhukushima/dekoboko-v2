@@ -3,7 +3,7 @@ import {
   CommitUpdateEvent,
   Jetstream,
 } from "@skyware/jetstream";
-import { db } from "@/lib/firevase";
+import { db } from "@/lib/firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import WebSocket from "ws";
 import {

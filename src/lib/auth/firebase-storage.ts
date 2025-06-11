@@ -5,7 +5,7 @@ import type {
   NodeSavedStateStore,
 } from "@atproto/oauth-client-node";
 
-import { db } from "@/lib/firevase";
+import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 
 /**

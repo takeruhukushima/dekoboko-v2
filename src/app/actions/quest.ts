@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/lib/firevase";
+import { db } from "@/lib/firebase";
 import { 
   collection, 
   getDocs, 

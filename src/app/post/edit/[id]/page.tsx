@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { getPostById, updatePost } from "@/lib/firevase";
+import { getPostById, updatePost } from "@/lib/firebase";
 import { Post } from "@/types/post";
 
 export default function EditPostPage() {

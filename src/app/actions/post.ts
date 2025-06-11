@@ -2,7 +2,7 @@
 
 import { getSessionAgent } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
-import { addPost, deletePost } from "@/lib/firevase";
+import { addPost, deletePost } from "@/lib/firebase";
 
 export { deletePost };
 import { revalidatePath } from "next/cache";

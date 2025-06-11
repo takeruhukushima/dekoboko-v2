@@ -1,4 +1,6 @@
 "use server";
+
+export const dynamic = 'force-dynamic'; // 動的レンダリングを有効化
 import { QuestForm } from "@/components/quest/form";
 import type { AppBskyActorDefs } from "@atproto/api";
 import { getSessionAgent } from "@/lib/auth/session";
