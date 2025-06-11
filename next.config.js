@@ -1,12 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
-  experimental: {
-    appDir: true,
-  },
   images: {
-    domains: ['cdn.bsky.app'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn.bsky.app',
+      },
+    ],
   },
   webpack: (config) => {
     config.resolve.alias['@'] = require('path').resolve(__dirname, 'src');

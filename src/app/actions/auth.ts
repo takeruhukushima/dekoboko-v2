@@ -20,7 +20,7 @@ function validateAndFormatHandle(handle: string): string {
   }
   
   // Remove any leading @, trim whitespace, and clean up the string
-  let cleanHandle = handle
+  const cleanHandle = handle
     .replace(/^[@\s]+/, '')  // Remove leading @ and whitespace
     .replace(/[\s@]+$/, '')  // Remove trailing @ and whitespace
     .trim()

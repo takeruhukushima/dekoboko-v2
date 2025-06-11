@@ -27,7 +27,7 @@ const getServerSession = async () => {
 };
 
 interface PageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 const errorMessages: Record<string, string> = {
@@ -44,9 +44,8 @@ export default async function LoginPage({ searchParams: searchParamsProp }: Page
     redirect("/");
   }
 
-  // Handle both Promise and direct access to searchParams
-  const searchParams = searchParamsProp instanceof Promise ? await searchParamsProp : searchParamsProp;
-  const error = searchParams?.error as string | undefined;
+  const searchParams = searchParamsProp ? await searchParamsProp : {};
+  const error = searchParams.error as string | undefined;
   const errorMessage = error ? errorMessages[error] || "エラーが発生しました" : null;
 
   return (
