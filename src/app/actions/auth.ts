@@ -86,40 +86,62 @@ function validateAndFormatHandle(handle: string): string {
 const AUTH_TIMEOUT_MS = 30000; // 30秒でタイムアウト
 
 export async function authorize(formData: FormData) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), AUTH_TIMEOUT_MS);
-
+  console.log('Authorization started');
+  const startTime = Date.now();
+  
   try {
     const handle = formData.get("handle") as string;
+    console.log('Handle received:', handle);
 
     if (!handle) {
       throw new Error("ハンドルが指定されていません。");
     }
 
-    console.log('Starting authorization for handle:', handle);
-    
+    // 1. ハンドルの検証とフォーマット
+    console.log('Validating handle...');
     const formattedHandle = validateAndFormatHandle(handle);
+    console.log('Formatted handle:', formattedHandle);
     
-    // クライアントにタイムアウトシグナルを渡す
-    const url = await Promise.race([
-      client.authorize(formattedHandle, {
-        scope: "atproto transition:generic",
-      }),
-      new Promise<never>((_, reject) => 
-        setTimeout(() => reject(new Error('認証処理がタイムアウトしました。もう一度お試しください。')), AUTH_TIMEOUT_MS - 1000)
-      )
-    ]);
+    // 2. 認証URLの取得（タイムアウト付き）
+    console.log('Requesting authorization URL...');
+    const authPromise = client.authorize(formattedHandle, {
+      scope: "atproto transition:generic",
+    });
+
+    // 30秒のタイムアウト
+    const timeoutPromise = new Promise<never>((_, reject) => 
+      setTimeout(() => {
+        const elapsed = (Date.now() - startTime) / 1000;
+        reject(new Error(`認証処理がタイムアウトしました（${elapsed.toFixed(1)}秒経過）。もう一度お試しください。`));
+      }, AUTH_TIMEOUT_MS)
+    );
+
+    const url = await Promise.race([authPromise, timeoutPromise]);
     
-    console.log('Authorization successful, redirecting to:', url);
+    if (!url) {
+      throw new Error('認証URLの取得に失敗しました');
+    }
+    
+    console.log(`Authorization URL received in ${(Date.now() - startTime) / 1000} seconds`);
+    console.log('Redirecting to:', url);
+    
+    // リダイレクト
     redirect(url.toString());
   } catch (error) {
-    console.error('Authentication error:', error);
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error('認証処理が時間内に完了しませんでした。時間をおいて再度お試しください。');
+    const elapsed = (Date.now() - startTime) / 1000;
+    console.error(`Authentication failed after ${elapsed.toFixed(1)} seconds:`, error);
+    
+    // エラーメッセージをユーザーフレンドリーに
+    if (error instanceof Error) {
+      if (error.message.includes('timed out') || error.name === 'AbortError') {
+        throw new Error(`認証処理が時間内に完了しませんでした（${elapsed.toFixed(1)}秒経過）。時間をおいて再度お試しください。`);
+      }
+      if (error.message.includes('invalid_handle')) {
+        throw new Error('無効なハンドルです。正しいハンドルを入力してください。');
+      }
     }
-    throw error;
-  } finally {
-    clearTimeout(timeoutId);
+    
+    throw new Error(`認証中にエラーが発生しました: ${error instanceof Error ? error.message : '不明なエラー'}`);
   }
 }
 
