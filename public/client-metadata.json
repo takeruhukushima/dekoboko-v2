@@ -1,0 +1,19 @@
+{
+  "client_name": "Dekoboko App",
+  "client_id": "https://dekobokov2.vercel.app?redirect_uri=https%3A%2F%2Fdekobokov2.vercel.app%2Fapi%2Foauth%2Fcallback&scope=atproto%20transition%3Ageneric",
+  "client_uri": "https://dekobokov2.vercel.app",
+  "redirect_uris": [
+    "https://dekobokov2.vercel.app/api/oauth/callback"
+  ],
+  "scope": "atproto transition:generic",
+  "grant_types": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "response_types": [
+    "code"
+  ],
+  "application_type": "web",
+  "token_endpoint_auth_method": "none",
+  "dpop_bound_access_tokens": true
+}

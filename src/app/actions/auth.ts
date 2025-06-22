@@ -12,6 +12,14 @@ declare module "iron-session" {
 
 const client = await createClient();
 
+// エラーメッセージのマッピング
+const ERROR_MESSAGES: Record<string, string> = {
+  timeout: '認証処理が時間内に完了しませんでした。時間をおいて再度お試しください。',
+  invalid_handle: '無効なハンドルです。正しいハンドルを入力してください。',
+  network: 'ネットワークエラーが発生しました。インターネット接続を確認してください。',
+  default: '認証中にエラーが発生しました。しばらくしてからもう一度お試しください。',
+};
+
 function validateAndFormatHandle(handle: string): string {
   console.log('Original handle:', JSON.stringify(handle));
   
@@ -86,7 +94,7 @@ function validateAndFormatHandle(handle: string): string {
 const AUTH_TIMEOUT_MS = 30000; // 30秒でタイムアウト
 
 export async function authorize(formData: FormData) {
-  console.log('Authorization started');
+  console.log(`[${new Date().toISOString()}] Authorization started`);
   const startTime = Date.now();
   
   try {
@@ -102,46 +110,86 @@ export async function authorize(formData: FormData) {
     const formattedHandle = validateAndFormatHandle(handle);
     console.log('Formatted handle:', formattedHandle);
     
-    // 2. 認証URLの取得（タイムアウト付き）
+    // 2. 認証URLの取得
     console.log('Requesting authorization URL...');
-    const authPromise = client.authorize(formattedHandle, {
-      scope: "atproto transition:generic",
-    });
-
-    // 30秒のタイムアウト
-    const timeoutPromise = new Promise<never>((_, reject) => 
-      setTimeout(() => {
-        const elapsed = (Date.now() - startTime) / 1000;
-        reject(new Error(`認証処理がタイムアウトしました（${elapsed.toFixed(1)}秒経過）。もう一度お試しください。`));
-      }, AUTH_TIMEOUT_MS)
-    );
-
-    const url = await Promise.race([authPromise, timeoutPromise]);
     
-    if (!url) {
-      throw new Error('認証URLの取得に失敗しました');
+    try {
+      console.log('Creating authorization URL with handle:', formattedHandle);
+      
+      // AT ProtocolのOAuthクライアントを使用して認証URLを取得
+      const url = await client.authorize(formattedHandle, {
+        scope: "atproto transition:generic",
+      });
+      
+      if (!url) {
+        throw new Error('認証URLの取得に失敗しました');
+      }
+      
+      const elapsed = (Date.now() - startTime) / 1000;
+      console.log(`Authorization URL received in ${elapsed.toFixed(1)} seconds`);
+      console.log('Redirecting to:', url);
+      
+      // リダイレクト - これは正常な動作
+      redirect(url.toString());
+      
+    } catch (authError) {
+      console.error('Authorization error:', authError);
+      
+      // NEXT_REDIRECTは正常なリダイレクトなので、再スローする
+      if (authError instanceof Error && authError.message === 'NEXT_REDIRECT') {
+        throw authError;
+      }
+      
+      let errorMessage = ERROR_MESSAGES.default;
+      if (authError instanceof Error) {
+        const errorStr = authError.message.toLowerCase();
+        
+        if (errorStr.includes('400')) {
+          errorMessage = 'OAuthクライアントの設定に問題があります。client_idやredirect_uriを確認してください。';
+        } else if (errorStr.includes('invalid_client_metadata')) {
+          errorMessage = 'OAuthクライアントの設定に問題があります。管理者にお問い合わせください。';
+        } else if (errorStr.includes('invalid_handle') || errorStr.includes('invalid handle')) {
+          errorMessage = ERROR_MESSAGES.invalid_handle;
+        } else if (errorStr.includes('network') || errorStr.includes('econn') || errorStr.includes('fetch')) {
+          errorMessage = ERROR_MESSAGES.network;
+        } else {
+          errorMessage = `認証中にエラーが発生しました: ${authError.message || '不明なエラー'}`;
+        }
+      }
+      throw new Error(errorMessage);
+    }
+  } catch (error) {
+    // NEXT_REDIRECTは正常なリダイレクトなので、再スローする
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+      throw error;
     }
     
-    console.log(`Authorization URL received in ${(Date.now() - startTime) / 1000} seconds`);
-    console.log('Redirecting to:', url);
-    
-    // リダイレクト
-    redirect(url.toString());
-  } catch (error) {
     const elapsed = (Date.now() - startTime) / 1000;
-    console.error(`Authentication failed after ${elapsed.toFixed(1)} seconds:`, error);
+    console.error(`[${new Date().toISOString()}] Authentication failed after ${elapsed.toFixed(1)} seconds:`, {
+      error: error instanceof Error ? {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      } : error,
+      timeElapsed: elapsed
+    });
     
     // エラーメッセージをユーザーフレンドリーに
+    let errorMessage = ERROR_MESSAGES.default;
+    
     if (error instanceof Error) {
-      if (error.message.includes('timed out') || error.name === 'AbortError') {
-        throw new Error(`認証処理が時間内に完了しませんでした（${elapsed.toFixed(1)}秒経過）。時間をおいて再度お試しください。`);
-      }
-      if (error.message.includes('invalid_handle')) {
-        throw new Error('無効なハンドルです。正しいハンドルを入力してください。');
+      const errorStr = error.message.toLowerCase();
+      
+      if (errorStr.includes('network') || errorStr.includes('econn') || errorStr.includes('fetch')) {
+        errorMessage = ERROR_MESSAGES.network;
+      } else if (errorStr.includes('invalid_handle') || errorStr.includes('invalid handle')) {
+        errorMessage = ERROR_MESSAGES.invalid_handle;
+      } else {
+        errorMessage = `認証中にエラーが発生しました: ${error.message || '不明なエラー'}`;
       }
     }
     
-    throw new Error(`認証中にエラーが発生しました: ${error instanceof Error ? error.message : '不明なエラー'}`);
+    throw new Error(errorMessage);
   }
 }
 
